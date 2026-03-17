@@ -252,6 +252,71 @@ body {
     display: inline-block;
 }
 
+/* BPS Legend */
+.legend-section {
+    margin: 4rem 0 2rem;
+}
+
+.bps-legend {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.legend-title {
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    font-size: 1.1rem;
+}
+
+.legend-desc {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+}
+
+.legend-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.legend-table th {
+    text-align: left;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.legend-table td {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.legend-table tr:last-child td {
+    border-bottom: none;
+}
+
+.bps-range {
+    font-family: var(--font-mono);
+    color: #ffffff;
+    font-weight: 600;
+    width: 30%;
+}
+
+.bps-meaning {
+    color: var(--text-primary);
+}
+
 /* Tables */
 .main-section {
     margin-bottom: 3rem;
