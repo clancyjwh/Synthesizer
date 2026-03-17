@@ -36,37 +36,79 @@
             color: var(--accent);
         }
         .pair-title {
-            font-size: 2.5rem;
+            font-size: 3rem;
             font-family: var(--font-mono);
             font-weight: 700;
             color: var(--accent);
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
         }
         .signal-hero {
             display: inline-block;
-            padding: 0.5rem 1.5rem;
+            padding: 0.4rem 1.2rem;
             border-radius: 4px;
             font-weight: 800;
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             text-transform: uppercase;
-            margin-bottom: 1.5rem;
+            margin-bottom: 3rem;
         }
-        .bps-hero {
-            font-size: 4rem;
-            font-weight: 800;
+
+        /* New Price Row */
+        .price-row {
+            display: flex;
+            justify-content: center;
+            gap: 4rem;
+            margin-bottom: 3rem;
+        }
+        .price-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .price-label {
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+        }
+        .price-value {
+            color: #ffffff;
+            font-size: 2.5rem;
+            font-weight: 700;
             font-family: var(--font-mono);
-            margin-bottom: 2rem;
+        }
+
+        .route-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
         }
         .route-formula {
             background: rgba(0,0,0,0.3);
             padding: 2rem;
             border-radius: 8px;
             font-family: var(--font-mono);
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             color: var(--text-secondary);
             border: 1px dashed var(--border);
-            margin-bottom: 2rem;
+            margin-bottom: 3rem;
+            word-break: break-all;
         }
+        .observation-container {
+            border-top: 1px solid var(--border);
+            padding-top: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .observation-full {
+            color: var(--text-primary);
+            font-size: 1.15rem;
+            line-height: 1.6;
+            margin-top: 1rem;
+        }
+
         .quick-switch {
             background: var(--bg-primary);
             color: var(--text-primary);
@@ -74,6 +116,11 @@
             padding: 0.5rem 1rem;
             border-radius: 4px;
             font-family: var(--font-main);
+            outline: none;
+            cursor: pointer;
+        }
+        .quick-switch:hover {
+            border-color: var(--accent);
         }
     </style>
 </head>
@@ -92,10 +139,29 @@
             <div class="detail-card">
                 <h1 id="detail-pair" class="pair-title">---</h1>
                 <div id="detail-signal" class="signal-hero">---</div>
-                <div id="detail-bps" class="bps-hero">0.0 bps</div>
+                
+                <div class="price-row">
+                    <div class="price-item">
+                        <span class="price-label">Quoted Price</span>
+                        <span id="detail-quoted" class="price-value">---</span>
+                    </div>
+                    <div class="price-item">
+                        <span class="price-label">Synthetic Price</span>
+                        <span id="detail-synthetic" class="price-value">---</span>
+                    </div>
+                    <div class="price-item">
+                        <span class="price-label">Disagreement</span>
+                        <span id="detail-bps" class="price-value">0.0 bps</span>
+                    </div>
+                </div>
+
                 <div class="route-label">Route Calculation:</div>
                 <div id="detail-route" class="route-formula">---</div>
-                <div id="detail-observation" class="observation-cell" style="font-size: 1.1rem; max-width: 800px; margin: 0 auto;">---</div>
+                
+                <div class="observation-container">
+                    <span class="price-label">Observation</span>
+                    <div id="detail-observation" class="observation-full">---</div>
+                </div>
             </div>
         </main>
     </div>
@@ -114,10 +180,14 @@
 
             if (pairData) {
                 document.getElementById('detail-pair').textContent = pairData.pair;
+                
                 const signalEl = document.getElementById('detail-signal');
                 signalEl.textContent = pairData.signal;
                 signalEl.className = 'signal-hero ' + (pairData.signal.toLowerCase() === 'buy' ? 'signal-buy' : 'signal-sell');
                 
+                document.getElementById('detail-quoted').textContent = pairData.quoted_price;
+                document.getElementById('detail-synthetic').textContent = pairData.synthetic_price;
+
                 const bpsEl = document.getElementById('detail-bps');
                 bpsEl.textContent = (pairData.disagreement_bps > 0 ? '+' : '') + pairData.disagreement_bps + ' bps';
                 bpsEl.style.color = pairData.disagreement_bps >= 0 ? 'var(--success)' : 'var(--danger)';
