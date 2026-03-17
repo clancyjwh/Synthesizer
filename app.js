@@ -11,6 +11,15 @@ const top10Body = document.getElementById('top-10-body');
 const allResultsBody = document.getElementById('all-results-body');
 const errorToast = document.getElementById('error-toast');
 
+// Market Alert & Modal Elements
+const alertContainer = document.getElementById('market-alert-container');
+const alertCard = document.getElementById('market-alert-card');
+const alertAsset = document.getElementById('alert-asset');
+const modalOverlay = document.getElementById('modal-overlay');
+const modalTitle = document.getElementById('modal-title');
+const modalContent = document.getElementById('modal-content');
+const closeModal = document.getElementById('close-modal');
+
 // State Management
 let currentData = null;
 
@@ -56,36 +65,45 @@ function renderUI(data) {
     
     // run_meta extraction
     if (data.run_meta) {
-        totalComparisonsEl.textContent = data.run_meta.total_comparisons || 0;
+        totalComparisonsEl.textContent = data.run_meta.total_results_after_dedup || 0;
     }
 
-    // Top 10 Table
-    const top10 = (data.top_10 || []).slice(0, 10);
+    // Market Alert
+    if (data.market_alert) {
+        alertContainer.classList.remove('hidden');
+        alertAsset.textContent = data.market_alert.asset;
+        alertCard.onclick = () => openModal('Market Analysis: ' + data.market_alert.asset, data.market_alert.message);
+    } else {
+        alertContainer.classList.add('hidden');
+    }
+
+    // Top 10 Table (Simplified: Rank, Pair, Quoted, Synthetic, Observation)
+    const top10 = (data.top_discrepancies || []).slice(0, 10);
     top10Body.innerHTML = top10.map((item, index) => `
-        <tr>
-            <td>${index + 1}</td>
-            <td style="font-weight: 700;">${item.pair}</td>
+        <tr class="clickable-row">
+            <td>${item.rank || index + 1}</td>
             <td>
-                <span class="signal-label ${item.signal.toLowerCase() === 'buy' ? 'signal-buy' : 'signal-sell'}">
-                    ${item.signal}
-                </span>
+                <a href="details.html?pair=${encodeURIComponent(item.pair)}" target="_blank" class="pair-link">
+                    ${item.pair}
+                </a>
             </td>
             <td class="price-cell">${item.quoted_price}</td>
             <td class="price-cell">${item.synthetic_price}</td>
-            <td class="bps-cell" style="color: ${item.bps >= 0 ? 'var(--success)' : 'var(--danger)'}">
-                ${item.bps > 0 ? '+' : ''}${item.bps.toFixed(2)} bps
+            <td onclick="openModal('Observation: ${item.pair}', \`${item.observation}\`)">
+                <span class="observation-text">${item.observation}</span>
             </td>
-            <td class="route-cell">${item.route_calc}</td>
-            <td class="observation-cell">${item.observation}</td>
         </tr>
-    `).join('') || '<tr><td colspan="8" class="empty-state">No discrepancies found.</td></tr>';
+    `).join('') || '<tr><td colspan="5" class="empty-state">No discrepancies found.</td></tr>';
 
     // All Results Table
-    const allResults = data.all_results || [];
-    allResultsBody.innerHTML = allResults.map(item => `
+    const allResults = data.all_discrepancies || [];
+    allResultsBody.innerHTML = allResults.map((item, index) => `
         <tr>
-            <td>${item.pair}</td>
-            <td class="bps-cell">${item.bps.toFixed(2)} bps</td>
+            <td>${item.rank || index + 1}</td>
+            <td style="font-weight: 600;">${item.pair}</td>
+            <td class="bps-cell" style="color: ${item.disagreement_bps >= 0 ? 'var(--success)' : 'var(--danger)'}">
+                ${item.disagreement_bps > 0 ? '+' : ''}${item.disagreement_bps} bps
+            </td>
             <td>
                 <span class="signal-label ${item.signal.toLowerCase() === 'buy' ? 'signal-buy' : 'signal-sell'}">
                     ${item.signal}
@@ -93,6 +111,16 @@ function renderUI(data) {
             </td>
         </tr>
     `).join('');
+}
+
+function openModal(title, content) {
+    modalTitle.textContent = title;
+    modalContent.innerHTML = `<p>${content}</p>`;
+    modalOverlay.classList.remove('hidden');
+}
+
+function closePopup() {
+    modalOverlay.classList.add('hidden');
 }
 
 function setLoading(isLoading) {
@@ -123,6 +151,10 @@ function init() {
     }
     
     refreshBtn.addEventListener('click', fetchData);
+    closeModal.addEventListener('click', closePopup);
+    modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) closePopup();
+    });
 }
 
 init();

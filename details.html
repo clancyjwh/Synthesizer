@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HilEX | Pair Analysis Detail</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        .detail-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 3rem;
+            margin-top: 2rem;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+        }
+        .back-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .back-link:hover {
+            color: var(--accent);
+        }
+        .pair-title {
+            font-size: 2.5rem;
+            font-family: var(--font-mono);
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 2rem;
+        }
+        .signal-hero {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            border-radius: 4px;
+            font-weight: 800;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+        }
+        .bps-hero {
+            font-size: 4rem;
+            font-weight: 800;
+            font-family: var(--font-mono);
+            margin-bottom: 2rem;
+        }
+        .route-formula {
+            background: rgba(0,0,0,0.3);
+            padding: 2rem;
+            border-radius: 8px;
+            font-family: var(--font-mono);
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            border: 1px dashed var(--border);
+            margin-bottom: 2rem;
+        }
+        .quick-switch {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-family: var(--font-main);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="detail-header">
+            <a href="index.html" class="back-link">← Dashboard</a>
+            <div class="quick-switch-area">
+                <select id="quick-switch" class="quick-switch">
+                    <option value="">Quick Switch Pair...</option>
+                </select>
+            </div>
+        </header>
+
+        <main id="detail-view">
+            <div class="detail-card">
+                <h1 id="detail-pair" class="pair-title">---</h1>
+                <div id="detail-signal" class="signal-hero">---</div>
+                <div id="detail-bps" class="bps-hero">0.0 bps</div>
+                <div class="route-label">Route Calculation:</div>
+                <div id="detail-route" class="route-formula">---</div>
+                <div id="detail-observation" class="observation-cell" style="font-size: 1.1rem; max-width: 800px; margin: 0 auto;">---</div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const CACHE_KEY = 'hilex_cache';
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetPair = urlParams.get('pair');
+
+        function loadDetail() {
+            const cache = JSON.parse(localStorage.getItem(CACHE_KEY));
+            if (!cache || !cache.data) return;
+
+            const data = cache.data;
+            const pairData = (data.top_discrepancies || []).find(p => p.pair === targetPair);
+
+            if (pairData) {
+                document.getElementById('detail-pair').textContent = pairData.pair;
+                const signalEl = document.getElementById('detail-signal');
+                signalEl.textContent = pairData.signal;
+                signalEl.className = 'signal-hero ' + (pairData.signal.toLowerCase() === 'buy' ? 'signal-buy' : 'signal-sell');
+                
+                const bpsEl = document.getElementById('detail-bps');
+                bpsEl.textContent = (pairData.disagreement_bps > 0 ? '+' : '') + pairData.disagreement_bps + ' bps';
+                bpsEl.style.color = pairData.disagreement_bps >= 0 ? 'var(--success)' : 'var(--danger)';
+
+                document.getElementById('detail-route').textContent = pairData.route_calculation;
+                document.getElementById('detail-observation').textContent = pairData.observation;
+            }
+
+            // Populate Quick Switch
+            const select = document.getElementById('quick-switch');
+            (data.top_discrepancies || []).forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.pair;
+                opt.textContent = p.pair;
+                if (p.pair === targetPair) opt.selected = true;
+                select.appendChild(opt);
+            });
+
+            select.onchange = (e) => {
+                if (e.target.value) {
+                    window.location.href = `details.html?pair=${encodeURIComponent(e.target.value)}`;
+                }
+            };
+        }
+
+        loadDetail();
+    </script>
+</body>
+</html>

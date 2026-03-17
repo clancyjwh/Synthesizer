@@ -18,7 +18,7 @@
                 <div class="stats-group">
                     <span class="stat-item">Last Refresh: <span id="last-refresh">---</span></span>
                     <span class="stat-separator">|</span>
-                    <span class="stat-item">Comparisons: <span id="total-comparisons">0</span></span>
+                    <span class="stat-item">Results: <span id="total-comparisons">0</span></span>
                 </div>
             </div>
             <div class="action-area">
@@ -30,6 +30,17 @@
         </header>
 
         <main class="content">
+            <section id="market-alert-container" class="alert-section hidden">
+                <div id="market-alert-card" class="alert-card">
+                    <div class="alert-tag">MARKET ALERT</div>
+                    <div class="alert-body">
+                        <span class="alert-label">Asset:</span>
+                        <span id="alert-asset" class="alert-value">---</span>
+                    </div>
+                    <div class="alert-cta">Click for full analysis →</div>
+                </div>
+            </section>
+
             <section class="main-section">
                 <h2 class="section-title">Top 10 Discrepancies</h2>
                 <div class="table-container">
@@ -38,18 +49,14 @@
                             <tr>
                                 <th>Rank</th>
                                 <th>Pair</th>
-                                <th>Signal</th>
                                 <th>Quoted</th>
                                 <th>Synthetic</th>
-                                <th>BPS</th>
-                                <th>Route Calculation</th>
                                 <th>Observation</th>
                             </tr>
                         </thead>
                         <tbody id="top-10-body">
-                            <!-- Data injected via app.js -->
                             <tr>
-                                <td colspan="8" class="empty-state">Loading latest data...</td>
+                                <td colspan="5" class="empty-state">Loading latest data...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -66,6 +73,7 @@
                         <table id="all-results-table">
                             <thead>
                                 <tr>
+                                    <th>Rank</th>
                                     <th>Pair</th>
                                     <th>BPS</th>
                                     <th>Signal</th>
@@ -83,6 +91,19 @@
         <footer class="footer">
             <p>This tool is for informational purposes only and does not constitute financial advice. Past patterns are not indicative of future results.</p>
         </footer>
+
+        <!-- Modal System -->
+        <div id="modal-overlay" class="modal-overlay hidden">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3 id="modal-title">Analysis Detail</h3>
+                    <button id="close-modal" class="btn-close">&times;</button>
+                </div>
+                <div id="modal-content" class="modal-body">
+                    <!-- Dynamic Content -->
+                </div>
+            </div>
+        </div>
 
         <div id="error-toast" class="error-toast hidden"></div>
     </div>
