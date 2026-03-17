@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HilEX | FX Price Discrepancy Dashboard</title>
+    <meta name="description" content="Professional FX price discrepancy analysis tool by HilEX.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <div class="logo-area">
+                <h1 class="logo">HilEX</h1>
+                <div class="stats-group">
+                    <span class="stat-item">Last Refresh: <span id="last-refresh">---</span></span>
+                    <span class="stat-separator">|</span>
+                    <span class="stat-item">Comparisons: <span id="total-comparisons">0</span></span>
+                </div>
+            </div>
+            <div class="action-area">
+                <button id="refresh-btn" class="btn-refresh">
+                    <span id="btn-text">Refresh Data</span>
+                    <span id="spinner" class="spinner hidden"></span>
+                </button>
+            </div>
+        </header>
+
+        <main class="content">
+            <section class="main-section">
+                <h2 class="section-title">Top 10 Discrepancies</h2>
+                <div class="table-container">
+                    <table id="top-10-table">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Pair</th>
+                                <th>Signal</th>
+                                <th>Quoted</th>
+                                <th>Synthetic</th>
+                                <th>BPS</th>
+                                <th>Route Calculation</th>
+                                <th>Observation</th>
+                            </tr>
+                        </thead>
+                        <tbody id="top-10-body">
+                            <!-- Data injected via app.js -->
+                            <tr>
+                                <td colspan="8" class="empty-state">Loading latest data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="secondary-section">
+                <details class="all-results-details">
+                    <summary class="all-results-summary">
+                        <span>All Results</span>
+                        <span class="toggle-icon">Show All</span>
+                    </summary>
+                    <div class="all-results-content">
+                        <table id="all-results-table">
+                            <thead>
+                                <tr>
+                                    <th>Pair</th>
+                                    <th>BPS</th>
+                                    <th>Signal</th>
+                                </tr>
+                            </thead>
+                            <tbody id="all-results-body">
+                                <!-- Data injected via app.js -->
+                            </tbody>
+                        </table>
+                    </div>
+                </details>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>This tool is for informational purposes only and does not constitute financial advice. Past patterns are not indicative of future results.</p>
+        </footer>
+
+        <div id="error-toast" class="error-toast hidden"></div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
