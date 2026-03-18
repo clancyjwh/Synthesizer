@@ -398,42 +398,7 @@ tr:hover td {
     font-size: 0.85rem;
 }
 
-/* Secondary Section */
-.secondary-section {
-    margin-top: auto;
-    padding-top: 2rem;
-}
 
-.all-results-details {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-}
-
-.all-results-summary {
-    padding: 1rem;
-    cursor: pointer;
-    font-weight: 600;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    list-style: none;
-}
-
-.all-results-summary::-webkit-details-marker {
-    display: none;
-}
-
-.toggle-icon {
-    font-size: 0.8rem;
-    color: var(--accent);
-}
-
-.all-results-content {
-    padding: 0 1rem 1rem 1rem;
-    max-height: 400px;
-    overflow-y: auto;
-}
 
 /* Footer */
 .footer {

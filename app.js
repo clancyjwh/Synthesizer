@@ -8,7 +8,6 @@ const spinner = document.getElementById('spinner');
 const lastRefreshEl = document.getElementById('last-refresh');
 const totalComparisonsEl = document.getElementById('total-comparisons');
 const top10Body = document.getElementById('top-10-body');
-const allResultsBody = document.getElementById('all-results-body');
 const errorToast = document.getElementById('error-toast');
 
 // Market Alert & Modal Elements
@@ -95,22 +94,7 @@ function renderUI(data) {
         </tr>
     `).join('') || '<tr><td colspan="5" class="empty-state">No discrepancies found.</td></tr>';
 
-    // All Results Table
-    const allResults = data.all_discrepancies || [];
-    allResultsBody.innerHTML = allResults.map((item, index) => `
-        <tr>
-            <td>${item.rank || index + 1}</td>
-            <td style="font-weight: 600;">${item.pair}</td>
-            <td class="bps-cell" style="color: ${item.disagreement_bps >= 0 ? 'var(--success)' : 'var(--danger)'}">
-                ${item.disagreement_bps > 0 ? '+' : ''}${item.disagreement_bps} bps
-            </td>
-            <td>
-                <span class="signal-label ${item.signal.toLowerCase() === 'buy' ? 'signal-buy' : 'signal-sell'}">
-                    ${item.signal}
-                </span>
-            </td>
-        </tr>
-    `).join('');
+
 }
 
 function openModal(title, content) {
