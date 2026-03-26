@@ -64,35 +64,40 @@ function renderUI(data) {
     
     // run_meta extraction
     if (data.run_meta) {
-        totalComparisonsEl.textContent = data.run_meta.total_results_after_dedup || 0;
+        totalComparisonsEl.textContent = data.run_meta.unique_pairs || 0;
     }
 
     // Market Alert
     if (data.market_alert) {
         alertContainer.classList.remove('hidden');
-        alertAsset.textContent = data.market_alert.asset;
-        alertCard.onclick = () => openModal('Market Analysis: ' + data.market_alert.asset, data.market_alert.message);
+        alertAsset.textContent = data.market_alert.pair;
+        alertCard.onclick = () => openModal('Market Analysis: ' + data.market_alert.pair, data.market_alert.message);
     } else {
         alertContainer.classList.add('hidden');
     }
 
-    // Top 10 Table (Simplified: Rank, Pair, Quoted, Synthetic, Observation)
+    // Top 10 Table (Simplified: Rank, Pair, Quoted, Consistency, Signal, Routes)
     const top10 = (data.top_discrepancies || []).slice(0, 10);
-    top10Body.innerHTML = top10.map((item, index) => `
-        <tr class="clickable-row">
-            <td>${item.rank || index + 1}</td>
-            <td>
-                <a href="details.html?pair=${encodeURIComponent(item.pair)}" target="_blank" class="pair-link">
-                    ${item.pair}
-                </a>
-            </td>
-            <td class="price-cell">${item.quoted_price}</td>
-            <td class="price-cell">${item.synthetic_price}</td>
-            <td onclick="openModal('Observation: ${item.pair}', \`${item.observation}\`)">
-                <span class="observation-text">${item.observation}</span>
-            </td>
-        </tr>
-    `).join('') || '<tr><td colspan="5" class="empty-state">No discrepancies found.</td></tr>';
+    top10Body.innerHTML = top10.map((item, index) => {
+        const consistency = item.consistency_score ? Number(item.consistency_score).toFixed(2) : '0.00';
+        const signalClass = item.signal ? (item.signal.toLowerCase() === 'buy' ? 'signal-buy' : 'signal-sell') : '';
+        return `
+            <tr class="clickable-row">
+                <td>${item.rank || index + 1}</td>
+                <td>
+                    <a href="details.html?pair=${encodeURIComponent(item.pair)}" target="_blank" class="pair-link">
+                        ${item.pair}
+                    </a>
+                </td>
+                <td class="price-cell">${item.quoted_price}</td>
+                <td class="price-cell">${consistency}</td>
+                <td>
+                    <span class="signal-label ${signalClass}">${item.signal || ''}</span>
+                </td>
+                <td>${item.route_count || 0}</td>
+            </tr>
+        `;
+    }).join('') || '<tr><td colspan="6" class="empty-state">No discrepancies found.</td></tr>';
 
 
 }

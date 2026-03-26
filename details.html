@@ -146,12 +146,12 @@
                         <span id="detail-quoted" class="price-value">---</span>
                     </div>
                     <div class="price-item">
-                        <span class="price-label">Synthetic Price</span>
-                        <span id="detail-synthetic" class="price-value">---</span>
+                        <span class="price-label">Avg Disagreement</span>
+                        <span id="detail-avg-disagreement" class="price-value">0.0 bps</span>
                     </div>
                     <div class="price-item">
-                        <span class="price-label">Disagreement</span>
-                        <span id="detail-bps" class="price-value">0.0 bps</span>
+                        <span class="price-label">Max Disagreement</span>
+                        <span id="detail-max-disagreement" class="price-value">0.0 bps</span>
                     </div>
                 </div>
 
@@ -159,8 +159,14 @@
                 <div id="detail-route" class="route-formula">---</div>
                 
                 <div class="observation-container">
-                    <span class="price-label">Observation</span>
-                    <div id="detail-observation" class="observation-full">---</div>
+                    <span class="price-label">Signal Explanation</span>
+                    <div id="detail-signal-exp" class="observation-full" style="margin-bottom: 2rem;">---</div>
+                    
+                    <span class="price-label">Consistency</span>
+                    <div id="detail-consistency-exp" class="observation-full" style="margin-bottom: 2rem;">---</div>
+                    
+                    <span class="price-label">BPS Breakdown</span>
+                    <div id="detail-bps-exp" class="observation-full">---</div>
                 </div>
             </div>
 
@@ -219,14 +225,19 @@
                 signalEl.className = 'signal-hero ' + (pairData.signal.toLowerCase() === 'buy' ? 'signal-buy' : 'signal-sell');
                 
                 document.getElementById('detail-quoted').textContent = pairData.quoted_price;
-                document.getElementById('detail-synthetic').textContent = pairData.synthetic_price;
+                
+                const avgBpsEl = document.getElementById('detail-avg-disagreement');
+                avgBpsEl.textContent = (pairData.avg_bps > 0 ? '+' : '') + pairData.avg_bps + ' bps';
+                avgBpsEl.style.color = (pairData.signal || '').toLowerCase() === 'buy' ? 'var(--success)' : 'var(--danger)';
 
-                const bpsEl = document.getElementById('detail-bps');
-                bpsEl.textContent = (pairData.disagreement_bps > 0 ? '+' : '') + pairData.disagreement_bps + ' bps';
-                bpsEl.style.color = pairData.disagreement_bps >= 0 ? 'var(--success)' : 'var(--danger)';
+                const maxBpsEl = document.getElementById('detail-max-disagreement');
+                maxBpsEl.textContent = (pairData.max_bps > 0 ? '+' : '') + pairData.max_bps + ' bps';
+                maxBpsEl.style.color = (pairData.signal || '').toLowerCase() === 'buy' ? 'var(--success)' : 'var(--danger)';
 
-                document.getElementById('detail-route').textContent = pairData.route_calculation;
-                document.getElementById('detail-observation').textContent = pairData.observation;
+                document.getElementById('detail-route').textContent = pairData.worst_route_calculation;
+                document.getElementById('detail-signal-exp').textContent = pairData.signal_explanation;
+                document.getElementById('detail-consistency-exp').textContent = pairData.consistency_explanation;
+                document.getElementById('detail-bps-exp').textContent = pairData.bps_explanation;
             }
 
             // Populate Quick Switch
