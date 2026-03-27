@@ -146,23 +146,38 @@
                         <span id="detail-quoted" class="price-value">---</span>
                     </div>
                     <div class="price-item">
-                        <span class="price-label">Avg Disagreement</span>
+                        <span class="price-label tooltip-container">
+                            Avg Disagreement <i class="info-icon">ℹ</i>
+                            <span id="tt-avg" class="tooltip-text">Across all [route_count] routes tested, the quoted price was off from the synthetic price by this amount on average. Basis points (bps) = 0.01%. So 7 bps means the price is 0.07% off. This is the most reliable number — it reflects the average across all routes, not just one.</span>
+                        </span>
                         <span id="detail-avg-disagreement" class="price-value">0.0 bps</span>
                     </div>
                     <div class="price-item">
-                        <span class="price-label">Max Disagreement</span>
+                        <span class="price-label tooltip-container">
+                            Max Disagreement <i class="info-icon">ℹ</i>
+                            <span class="tooltip-text">The single worst route found — the path through the matrix that showed the biggest price gap. If this is much higher than the average, it likely means one unusual route is an outlier and the true disagreement is closer to the average. If it is close to the average, every route is showing a similar gap which strengthens the signal.</span>
+                        </span>
                         <span id="detail-max-disagreement" class="price-value">0.0 bps</span>
                     </div>
                 </div>
 
-                <div class="route-label">Route Calculation:</div>
+                <div class="route-label tooltip-container">
+                    Route Calculation: <i class="info-icon">ℹ</i>
+                    <span class="tooltip-text">This shows the worst-case route in detail — the specific pairs multiplied together to calculate what the price should be synthetically. For example: EUR/USD × USD/HKD = EUR/HKD implied price. The number at the end is what the matrix says the price should be. Compare it to the quoted price above to see the disagreement.</span>
+                </div>
                 <div id="detail-route" class="route-formula">---</div>
                 
                 <div class="observation-container">
-                    <span class="price-label">Signal Explanation</span>
+                    <span class="price-label tooltip-container">
+                        Signal Explanation <i class="info-icon">ℹ</i>
+                        <span class="tooltip-text">This explains in plain English why the Buy or Sell signal was generated. A Buy signal is generated when the quoted market price is below the average synthetic price calculated across all routes — meaning the matrix thinks the pair is undervalued. A Sell signal is generated when the quoted price is above the average synthetic price — meaning the matrix thinks it is overvalued. The signal reflects what the cross-rate mathematics implies, not a recommendation to trade.</span>
+                    </span>
                     <div id="detail-signal-exp" class="observation-full" style="margin-bottom: 2rem;">---</div>
                     
-                    <span class="price-label">Consistency</span>
+                    <span class="price-label tooltip-container">
+                        Consistency <i class="info-icon">ℹ</i>
+                        <span id="tt-cons" class="tooltip-text">What percentage of the [route_count] routes tested agreed on the Buy or Sell direction. 100% means every single path through the matrix pointed the same way — a very strong signal. 50% means routes are split and the signal is unreliable. Below 70% treat with caution.</span>
+                    </span>
                     <div id="detail-consistency-exp" class="observation-full" style="margin-bottom: 2rem;">---</div>
                     
                     <span class="price-label">BPS Breakdown</span>
@@ -238,6 +253,9 @@
                 document.getElementById('detail-signal-exp').textContent = pairData.signal_explanation;
                 document.getElementById('detail-consistency-exp').textContent = pairData.consistency_explanation;
                 document.getElementById('detail-bps-exp').textContent = pairData.bps_explanation;
+                
+                document.getElementById('tt-avg').textContent = `Across all ${pairData.route_count} routes tested, the quoted price was off from the synthetic price by this amount on average. Basis points (bps) = 0.01%. So 7 bps means the price is 0.07% off. This is the most reliable number — it reflects the average across all routes, not just one.`;
+                document.getElementById('tt-cons').textContent = `What percentage of the ${pairData.route_count} routes tested agreed on the Buy or Sell direction. 100% means every single path through the matrix pointed the same way — a very strong signal. 50% means routes are split and the signal is unreliable. Below 70% treat with caution.`;
             }
 
             // Populate Quick Switch
