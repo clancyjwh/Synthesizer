@@ -159,8 +159,8 @@ init();
     let matrixPriceMap = {};
 
     async function startMatrixStream() {
-        const tableBody = document.getElementById('live-matrix-body');
-        if (!tableBody || !window.supabase) return;
+        const gridContainer = document.getElementById('live-matrix-grid');
+        if (!gridContainer || !window.supabase) return;
 
         // 1. Initialize Client
         matrixClient = window.supabase.createClient(MATRIX_SUPABASE_URL, MATRIX_SUPABASE_KEY);
@@ -172,22 +172,20 @@ init();
             .order('currency_pair', { ascending: true });
 
         if (error) {
-            tableBody.innerHTML = `<tr><td colspan="2" class="empty-state" style="color: var(--danger)">Connection to matrix feed failed.</td></tr>`;
+            gridContainer.innerHTML = `<div class="empty-state" style="color: var(--danger)">Connection to matrix feed failed.</div>`;
             return;
         }
 
-        // 3. Render Initial Table
-        tableBody.innerHTML = data.map(item => {
+        // 3. Render Initial Grid
+        gridContainer.innerHTML = data.map(item => {
             matrixPriceMap[item.currency_pair] = Number(item.forward_price);
             return `
-                <tr id="matrix-row-${item.currency_pair.replace('/', '-')}" class="clickable-row">
-                    <td>
-                        <span class="pair-link">${item.currency_pair}</span>
-                    </td>
-                    <td class="matrix-price-cell" data-pair="${item.currency_pair}">
+                <div id="matrix-card-${item.currency_pair.replace('/', '-')}" class="matrix-card">
+                    <span class="matrix-card-pair">${item.currency_pair}</span>
+                    <span class="matrix-card-price" data-pair="${item.currency_pair}">
                         ${Number(item.forward_price).toFixed(4)}
-                    </td>
-                </tr>
+                    </span>
+                </div>
             `;
         }).join('');
 
@@ -204,14 +202,16 @@ init();
                 matrixPriceMap[currency_pair] = newPrice;
 
                 // Update UI visually
-                const cell = document.querySelector(`.matrix-price-cell[data-pair="${currency_pair}"]`);
-                if (cell) {
-                    cell.textContent = newPrice.toFixed(4);
+                const card = document.getElementById(`matrix-card-${currency_pair.replace('/', '-')}`);
+                const priceSpan = card ? card.querySelector('.matrix-card-price') : null;
+                
+                if (priceSpan && card) {
+                    priceSpan.textContent = newPrice.toFixed(4);
                     
-                    // Directional Animation
-                    cell.classList.remove('matrix-flash-up', 'matrix-flash-down');
-                    void cell.offsetWidth; // Trigger reflow
-                    cell.classList.add(newPrice >= oldPrice ? 'matrix-flash-up' : 'matrix-flash-down');
+                    // Directional Animation on the CARD background
+                    card.classList.remove('matrix-flash-up', 'matrix-flash-down');
+                    void card.offsetWidth; // Trigger reflow
+                    card.classList.add(newPrice >= oldPrice ? 'matrix-flash-up' : 'matrix-flash-down');
                 }
             })
             .subscribe();

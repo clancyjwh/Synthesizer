@@ -51,24 +51,9 @@
                                 <th>Rank</th>
                                 <th>Pair</th>
                                 <th>Quoted</th>
-                                <th>
-                                    <div class="tooltip-container">
-                                        Consistency <i class="info-icon">ℹ</i>
-                                        <span class="tooltip-text">A score combining how large the price disagreement is and how many routes agree on the direction. Higher = stronger and more reliable signal.</span>
-                                    </div>
-                                </th>
-                                <th>
-                                    <div class="tooltip-container">
-                                        Signal <i class="info-icon">ℹ</i>
-                                        <span class="tooltip-text">Whether the matrix thinks this pair is underpriced (Buy) or overpriced (Sell) based on the majority of routes tested. A Buy signal means the quoted market price is currently LOWER than what the matrix calculates it should be — meaning you could potentially buy it cheap before it corrects upward. A Sell signal means the quoted price is HIGHER than what the matrix calculates — meaning it may correct downward. This is based purely on cross-rate mathematics, not on any fundamental or technical analysis.</span>
-                                    </div>
-                                </th>
-                                <th>
-                                    <div class="tooltip-container">
-                                        Routes <i class="info-icon">ℹ</i>
-                                        <span class="tooltip-text">How many independent paths through the currency matrix were used to calculate the synthetic price. More routes = more evidence. For example, 101 routes means the system found 101 different ways to calculate what this pair's price should be by combining other pairs in the matrix.</span>
-                                    </div>
-                                </th>
+                                <th>Consistency</th>
+                                <th>Signal</th>
+                                <th>Routes</th>
                             </tr>
                         </thead>
                         <tbody id="top-10-body">
@@ -81,21 +66,15 @@
             </section>
 
             <section class="main-section">
-                <h2 class="section-title">Live Matrix Feed</h2>
-                <div id="live-matrix-container" class="table-container matrix-scroll-container">
-                    <table id="live-matrix-table">
-                        <thead>
-                            <tr>
-                                <th>Currency Pair</th>
-                                <th style="text-align: right;">Forward Price</th>
-                            </tr>
-                        </thead>
-                        <tbody id="live-matrix-body">
-                            <tr>
-                                <td colspan="2" class="empty-state">Initializing real-time stream...</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <header class="section-header">
+                    <h2 class="section-title">Live Matrix Feed</h2>
+                    <div class="live-status">
+                        <span class="pulse-dot"></span>
+                        <span class="status-text">LIVE</span>
+                    </div>
+                </header>
+                <div id="live-matrix-grid" class="matrix-heatmap-grid">
+                    <div class="empty-state">Initializing real-time stream...</div>
                 </div>
             </section>
 
