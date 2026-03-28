@@ -76,9 +76,9 @@ function renderUI(data) {
         alertContainer.classList.add('hidden');
     }
 
-    // Top 10 Table (Simplified: Rank, Pair, Quoted, Consistency, Signal, Routes)
-    const top10 = (data.top_discrepancies || []).slice(0, 10);
-    top10Body.innerHTML = top10.map((item, index) => {
+    // Top 20 Table (Simplified: Rank, Pair, Quoted, Consistency, Signal, Routes)
+    const top20 = (data.top_discrepancies || []).slice(0, 20);
+    top10Body.innerHTML = top20.map((item, index) => {
         const consistency = item.consistency_score ? Number(item.consistency_score).toFixed(2) : '0.00';
         const signalClass = item.signal ? (item.signal.toLowerCase() === 'buy' ? 'signal-buy' : 'signal-sell') : '';
         return `

@@ -181,7 +181,30 @@
                     <div id="detail-consistency-exp" class="observation-full" style="margin-bottom: 2rem;">---</div>
                     
                     <span class="price-label">BPS Breakdown</span>
-                    <div id="detail-bps-exp" class="observation-full">---</div>
+                    <div id="detail-bps-exp" class="observation-full" style="margin-bottom: 4rem;">---</div>
+
+                    <div class="detail-section">
+                        <h3 class="section-subtitle">Full Route Analysis</h3>
+                        <div id="routes-collapsible-trigger" class="collapsible-trigger">
+                            <span>Show all <span id="route-count-display">---</span> routes</span>
+                            <span id="chevron" style="transition: transform 0.3s;">▼</span>
+                        </div>
+                        <div id="routes-collapsible-content" class="collapsible-content">
+                            <table class="routes-table">
+                                <thead>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Route String</th>
+                                        <th>BPS</th>
+                                        <th>Signal</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="routes-table-body">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -256,6 +279,32 @@
                 
                 document.getElementById('tt-avg').textContent = `Across all ${pairData.route_count} routes tested, the quoted price was off from the synthetic price by this amount on average. Basis points (bps) = 0.01%. So 7 bps means the price is 0.07% off. This is the most reliable number — it reflects the average across all routes, not just one.`;
                 document.getElementById('tt-cons').textContent = `What percentage of the ${pairData.route_count} routes tested agreed on the Buy or Sell direction. 100% means every single path through the matrix pointed the same way — a very strong signal. 50% means routes are split and the signal is unreliable. Below 70% treat with caution.`;
+
+                // All Routes Table
+                const routesArray = pairData.all_routes || [];
+                document.getElementById('route-count-display').textContent = routesArray.length;
+                
+                const sortedRoutes = [...routesArray].sort((a, b) => Math.abs(b.bps) - Math.abs(a.bps));
+                const routesBody = document.getElementById('routes-table-body');
+                
+                routesBody.innerHTML = sortedRoutes.map((r, idx) => `
+                    <tr>
+                        <td class="rank-cell">${idx + 1}</td>
+                        <td style="color: var(--text-primary)">${r.route_string}</td>
+                        <td class="bps-cell">${r.bps.toFixed(2)}</td>
+                        <td><span class="signal-label ${r.signal.toLowerCase() === 'buy' ? 'signal-buy' : 'signal-sell'}">${r.signal}</span></td>
+                    </tr>
+                `).join('');
+
+                // Toggle Logic
+                const trigger = document.getElementById('routes-collapsible-trigger');
+                const content = document.getElementById('routes-collapsible-content');
+                const chevron = document.getElementById('chevron');
+
+                trigger.onclick = () => {
+                    content.classList.toggle('expanded');
+                    chevron.style.transform = content.classList.contains('expanded') ? 'rotate(180deg)' : 'rotate(0deg)';
+                };
             }
 
             // Populate Quick Switch
