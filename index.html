@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
     <div class="app-container">
@@ -73,6 +74,25 @@
                         <tbody id="top-10-body">
                             <tr>
                                 <td colspan="6" class="empty-state">Loading latest data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="main-section">
+                <h2 class="section-title">Live Market Prices <span class="live-indicator"><span class="pulse-dot"></span> Active</span></h2>
+                <div class="table-container live-prices-container">
+                    <table id="live-prices-table">
+                        <thead>
+                            <tr>
+                                <th>Pair</th>
+                                <th style="text-align: right;">Forward Price</th>
+                            </tr>
+                        </thead>
+                        <tbody id="live-prices-body">
+                            <tr>
+                                <td colspan="2" class="empty-state">Connecting to Matrix Feed...</td>
                             </tr>
                         </tbody>
                     </table>

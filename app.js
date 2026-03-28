@@ -1,6 +1,12 @@
 const WEBHOOK_URL = 'https://hook.us2.make.com/rcachgdwllagyl783kcbavrhf4a1hnrf';
 const CACHE_KEY = 'hilex_cache';
 
+// Supabase Live Feed
+const SUPABASE_URL = 'https://ussceuooawbprpmxcmxg.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVzc2NldW9vYXdicHJwbXhjbXhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwMzA5NjQsImV4cCI6MjA4OTYwNjk2NH0.mpoWD_X6rc71X_9p3q8P00JUYXOC9XyUF4T7HfGeaWw';
+const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+let livePriceMap = {};
+
 // Elements
 const refreshBtn = document.getElementById('refresh-btn');
 const btnText = document.getElementById('btn-text');
@@ -131,6 +137,84 @@ function showError(msg) {
     }, 3000);
 }
 
+// --- LIVE PRICES LOGIC ---
+async function fetchInitialLivePrices() {
+    const livePricesBody = document.getElementById('live-prices-body');
+    if (!livePricesBody || !supabase) return;
+
+    const { data, error } = await supabase
+        .from('live_prices')
+        .select('currency_pair, forward_price')
+        .order('currency_pair', { ascending: true });
+
+    if (error) {
+        console.error('Error fetching live prices:', error);
+        livePricesBody.innerHTML = '<tr><td colspan="2" class="empty-state" style="color: var(--danger)">Connection to feed failed.</td></tr>';
+        return;
+    }
+
+    if (!data || data.length === 0) {
+        livePricesBody.innerHTML = '<tr><td colspan="2" class="empty-state">No live prices available.</td></tr>';
+        return;
+    }
+
+    livePricesBody.innerHTML = data.map(item => {
+        livePriceMap[item.currency_pair] = item.forward_price;
+        return `
+            <tr data-pair="${item.currency_pair}" class="clickable-row">
+                <td>
+                    <span class="pair-link">${item.currency_pair}</span>
+                </td>
+                <td class="price-cell live-forward-cell" style="text-align: right;" data-val="${item.forward_price}">
+                    ${Number(item.forward_price).toFixed(4)}
+                </td>
+            </tr>
+        `;
+    }).join('');
+
+    setupLivePriceSubscription();
+}
+
+function setupLivePriceSubscription() {
+    if (!supabase) return;
+    supabase.channel('public:live_prices')
+        .on('postgres_changes', { 
+            event: 'UPDATE', 
+            schema: 'public', 
+            table: 'live_prices' 
+        }, (payload) => {
+            const { currency_pair, forward_price } = payload.new;
+            updateLivePriceInUI(currency_pair, forward_price);
+        })
+        .subscribe();
+}
+
+function updateLivePriceInUI(pair, newPrice) {
+    const oldPrice = livePriceMap[pair] || 0;
+    livePriceMap[pair] = newPrice;
+
+    const row = document.querySelector(`#live-prices-body tr[data-pair="${pair}"]`);
+    if (!row) return;
+
+    const cell = row.querySelector('.live-forward-cell');
+    if (cell) {
+        cell.textContent = Number(newPrice).toFixed(4);
+        cell.setAttribute('data-val', newPrice);
+        
+        // Remove old classes so we can restart the animation
+        cell.classList.remove('price-up', 'price-down');
+        
+        // Force reflow
+        void cell.offsetWidth; 
+        
+        if (newPrice >= oldPrice) {
+            cell.classList.add('price-up');
+        } else {
+            cell.classList.add('price-down');
+        }
+    }
+}
+
 // Initial Load
 function init() {
     const cached = localStorage.getItem(CACHE_KEY);
@@ -144,6 +228,9 @@ function init() {
     modalOverlay.addEventListener('click', (e) => {
         if (e.target === modalOverlay) closePopup();
     });
+
+    // Start Live Feed
+    fetchInitialLivePrices();
 }
 
 init();
