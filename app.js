@@ -147,3 +147,81 @@ function init() {
 }
 
 init();
+
+/** 
+ * --- ISOLATED LIVE MATRIX FEED ---
+ * This block is completely independent of the webhook discrepancy logic.
+ */
+(function() {
+    const MATRIX_SUPABASE_URL = 'https://ussceuooawbprpmxcmxg.supabase.co';
+    const MATRIX_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVzc2NldW9vYXdicHJwbXhjbXhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwMzA5NjQsImV4cCI6MjA4OTYwNjk2NH0.mpoWD_X6rc71X_9p3q8P00JUYXOC9XyUF4T7HfGeaWw';
+    let matrixClient = null;
+    let matrixPriceMap = {};
+
+    async function startMatrixStream() {
+        const tableBody = document.getElementById('live-matrix-body');
+        if (!tableBody || !window.supabase) return;
+
+        // 1. Initialize Client
+        matrixClient = window.supabase.createClient(MATRIX_SUPABASE_URL, MATRIX_SUPABASE_KEY);
+
+        // 2. Initial Data Fetch
+        const { data, error } = await matrixClient
+            .from('live_prices')
+            .select('currency_pair, forward_price')
+            .order('currency_pair', { ascending: true });
+
+        if (error) {
+            tableBody.innerHTML = `<tr><td colspan="2" class="empty-state" style="color: var(--danger)">Connection to matrix feed failed.</td></tr>`;
+            return;
+        }
+
+        // 3. Render Initial Table
+        tableBody.innerHTML = data.map(item => {
+            matrixPriceMap[item.currency_pair] = Number(item.forward_price);
+            return `
+                <tr id="matrix-row-${item.currency_pair.replace('/', '-')}" class="clickable-row">
+                    <td>
+                        <span class="pair-link">${item.currency_pair}</span>
+                    </td>
+                    <td class="matrix-price-cell" data-pair="${item.currency_pair}">
+                        ${Number(item.forward_price).toFixed(4)}
+                    </td>
+                </tr>
+            `;
+        }).join('');
+
+        // 4. Setup Real-time Channel
+        matrixClient.channel('matrix-live-updates')
+            .on('postgres_changes', { 
+                event: 'UPDATE', 
+                schema: 'public', 
+                table: 'live_prices' 
+            }, (payload) => {
+                const { currency_pair, forward_price } = payload.new;
+                const oldPrice = matrixPriceMap[currency_pair] || 0;
+                const newPrice = Number(forward_price);
+                matrixPriceMap[currency_pair] = newPrice;
+
+                // Update UI visually
+                const cell = document.querySelector(`.matrix-price-cell[data-pair="${currency_pair}"]`);
+                if (cell) {
+                    cell.textContent = newPrice.toFixed(4);
+                    
+                    // Directional Animation
+                    cell.classList.remove('matrix-flash-up', 'matrix-flash-down');
+                    void cell.offsetWidth; // Trigger reflow
+                    cell.classList.add(newPrice >= oldPrice ? 'matrix-flash-up' : 'matrix-flash-down');
+                }
+            })
+            .subscribe();
+    }
+
+    // Wait for DOM and potentially CDN delay
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', startMatrixStream);
+    } else {
+        // If DOM already loaded (common in some envs), small delay to ensure CDN is parsed
+        setTimeout(startMatrixStream, 100);
+    }
+})();
