@@ -31,39 +31,73 @@
         </header>
 
         <main class="content">
-            <section id="market-alert-container" class="alert-section hidden">
-                <div id="market-alert-card" class="alert-card">
-                    <div class="alert-tag">MARKET ALERT</div>
-                    <div class="alert-body">
-                        <span class="alert-label">Asset:</span>
-                        <span id="alert-asset" class="alert-value">---</span>
-                    </div>
-                    <div class="alert-cta">Click for full analysis →</div>
-                </div>
-            </section>
+            <nav class="tabs-nav">
+                <button id="tab-btn-dashboard" class="tab-btn active">Dashboard</button>
+                <button id="tab-btn-matrix" class="tab-btn">Full Matrix <span id="matrix-count"></span></button>
+            </nav>
 
-            <section class="main-section">
-                <h2 class="section-title">Top 20 Discrepancies</h2>
-                <div class="table-container">
-                    <table id="top-10-table">
-                        <thead>
-                            <tr>
-                                <th>Rank</th>
-                                <th>Pair</th>
-                                <th>Quoted</th>
-                                <th>Consistency</th>
-                                <th>Signal</th>
-                                <th>Routes</th>
-                            </tr>
-                        </thead>
-                        <tbody id="top-10-body">
-                            <tr>
-                                <td colspan="6" class="empty-state">Loading latest data...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
+            <div id="tab-dashboard" class="tab-pane active">
+                <section id="market-alert-container" class="alert-section hidden">
+                    <div id="market-alert-card" class="alert-card">
+                        <div class="alert-tag">MARKET ALERT</div>
+                        <div class="alert-body">
+                            <span class="alert-label">Asset:</span>
+                            <span id="alert-asset" class="alert-value">---</span>
+                        </div>
+                        <div class="alert-cta">Click for full analysis →</div>
+                    </div>
+                </section>
+
+                <section class="main-section">
+                    <h2 class="section-title">Top 20 Discrepancies</h2>
+                    <div class="table-container">
+                        <table id="top-10-table">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Pair</th>
+                                    <th>Quoted</th>
+                                    <th>Consistency</th>
+                                    <th>Signal</th>
+                                    <th>Routes</th>
+                                </tr>
+                            </thead>
+                            <tbody id="top-10-body">
+                                <tr>
+                                    <td colspan="6" class="empty-state">Loading latest data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <div id="tab-full-matrix" class="tab-pane hidden">
+                <section class="main-section">
+                    <h2 class="section-title">Full Matrix Analysis</h2>
+                    <div class="table-container full-matrix-scroll">
+                        <table id="full-matrix-table">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Pair</th>
+                                    <th>Signal</th>
+                                    <th style="text-align: right;">Quoted</th>
+                                    <th style="text-align: right;">Avg BPS</th>
+                                    <th style="text-align: right;">Consistency</th>
+                                    <th>Routes</th>
+                                    <th>Consistency %</th>
+                                </tr>
+                            </thead>
+                            <tbody id="full-matrix-body">
+                                <tr>
+                                    <td colspan="8" class="empty-state">Calculating full matrix...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
 
             <section class="main-section">
                 <header class="section-header">

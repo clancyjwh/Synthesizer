@@ -8,7 +8,15 @@ const spinner = document.getElementById('spinner');
 const lastRefreshEl = document.getElementById('last-refresh');
 const totalComparisonsEl = document.getElementById('total-comparisons');
 const top10Body = document.getElementById('top-10-body');
+const fullMatrixBody = document.getElementById('full-matrix-body');
+const matrixCountEl = document.getElementById('matrix-count');
 const errorToast = document.getElementById('error-toast');
+
+// Tab Elements
+const tabBtnDashboard = document.getElementById('tab-btn-dashboard');
+const tabBtnMatrix = document.getElementById('tab-btn-matrix');
+const paneDashboard = document.getElementById('tab-dashboard');
+const paneMatrix = document.getElementById('tab-full-matrix');
 
 // Market Alert & Modal Elements
 const alertContainer = document.getElementById('market-alert-container');
@@ -21,6 +29,7 @@ const closeModal = document.getElementById('close-modal');
 
 // State Management
 let currentData = null;
+let activeTab = 'dashboard';
 
 async function fetchData() {
     setLoading(true);
@@ -64,11 +73,13 @@ function renderUI(data) {
     
     // run_meta extraction
     if (data.run_meta) {
-        totalComparisonsEl.textContent = data.run_meta.unique_pairs || 0;
+        const count = data.run_meta.unique_pairs || 0;
+        totalComparisonsEl.textContent = count;
+        matrixCountEl.textContent = `(${count})`;
     }
 
     // Market Alert
-    if (data.market_alert) {
+    if (data.market_alert && activeTab === 'dashboard') {
         alertContainer.classList.remove('hidden');
         alertAsset.textContent = data.market_alert.pair;
         alertCard.onclick = () => openModal('Market Analysis: ' + data.market_alert.pair, data.market_alert.message);
@@ -76,7 +87,7 @@ function renderUI(data) {
         alertContainer.classList.add('hidden');
     }
 
-    // Top 20 Table (Simplified: Rank, Pair, Quoted, Consistency, Signal, Routes)
+    // Render Dashboard Table (Top 20)
     const top20 = (data.top_discrepancies || []).slice(0, 20);
     top10Body.innerHTML = top20.map((item, index) => {
         const consistency = item.consistency_score ? Number(item.consistency_score).toFixed(2) : '0.00';
@@ -85,7 +96,7 @@ function renderUI(data) {
             <tr class="clickable-row">
                 <td>${item.rank || index + 1}</td>
                 <td>
-                    <a href="details.html?pair=${encodeURIComponent(item.pair)}" target="_blank" class="pair-link">
+                    <a href="details.html?pair=${encodeURIComponent(item.pair)}" class="pair-link">
                         ${item.pair}
                     </a>
                 </td>
@@ -99,7 +110,48 @@ function renderUI(data) {
         `;
     }).join('') || '<tr><td colspan="6" class="empty-state">No discrepancies found.</td></tr>';
 
+    // Render Full Matrix Table
+    const fullMatrix = data.full_matrix || [];
+    fullMatrixBody.innerHTML = fullMatrix.map((item, index) => {
+        const consistency = item.consistency_score ? Number(item.consistency_score).toFixed(2) : '0.00';
+        const signalClass = item.signal ? (item.signal.toLowerCase() === 'buy' ? 'signal-buy' : 'signal-sell') : '';
+        const avgBpsPrefix = item.avg_bps > 0 ? '+' : '';
+        
+        return `
+            <tr class="clickable-row">
+                <td>${item.rank || index + 1}</td>
+                <td>
+                    <a href="details.html?pair=${encodeURIComponent(item.pair)}" class="pair-link">
+                        ${item.pair}
+                    </a>
+                </td>
+                <td>
+                    <span class="signal-label ${signalClass}">${item.signal || ''}</span>
+                </td>
+                <td style="text-align: right; font-family: var(--font-mono);">${item.quoted_price}</td>
+                <td style="text-align: right; font-family: var(--font-mono);">${avgBpsPrefix}${item.avg_bps}</td>
+                <td style="text-align: right; font-family: var(--font-mono);">${consistency}</td>
+                <td style="text-align: center;">${item.route_count || 0}</td>
+                <td style="text-align: center;">${item.consistency_pct}%</td>
+            </tr>
+        `;
+    }).join('') || '<tr><td colspan="8" class="empty-state">No matrix data available.</td></tr>';
+}
 
+function switchTab(tab) {
+    activeTab = tab;
+    if (tab === 'dashboard') {
+        tabBtnDashboard.classList.add('active');
+        tabBtnMatrix.classList.remove('active');
+        paneDashboard.classList.remove('hidden');
+        paneMatrix.classList.add('hidden');
+    } else {
+        tabBtnDashboard.classList.remove('active');
+        tabBtnMatrix.classList.add('active');
+        paneDashboard.classList.add('hidden');
+        paneMatrix.classList.remove('hidden');
+    }
+    if (currentData) renderUI(currentData);
 }
 
 function openModal(title, content) {
@@ -144,6 +196,9 @@ function init() {
     modalOverlay.addEventListener('click', (e) => {
         if (e.target === modalOverlay) closePopup();
     });
+
+    tabBtnDashboard.addEventListener('click', () => switchTab('dashboard'));
+    tabBtnMatrix.addEventListener('click', () => switchTab('matrix'));
 }
 
 init();

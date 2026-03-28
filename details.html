@@ -253,7 +253,8 @@
             if (!cache || !cache.data) return;
 
             const data = cache.data;
-            const pairData = (data.top_discrepancies || []).find(p => p.pair === targetPair);
+            // Search all 105 pairs in full_matrix
+            const pairData = (data.full_matrix || []).find(p => p.pair === targetPair);
 
             if (pairData) {
                 document.getElementById('detail-pair').textContent = pairData.pair;
@@ -280,36 +281,46 @@
                 document.getElementById('tt-avg').textContent = `Across all ${pairData.route_count} routes tested, the quoted price was off from the synthetic price by this amount on average. Basis points (bps) = 0.01%. So 7 bps means the price is 0.07% off. This is the most reliable number — it reflects the average across all routes, not just one.`;
                 document.getElementById('tt-cons').textContent = `What percentage of the ${pairData.route_count} routes tested agreed on the Buy or Sell direction. 100% means every single path through the matrix pointed the same way — a very strong signal. 50% means routes are split and the signal is unreliable. Below 70% treat with caution.`;
 
-                // All Routes Table
-                const routesArray = pairData.all_routes || [];
-                document.getElementById('route-count-display').textContent = routesArray.length;
+                // Handle Breakdown Section
+                const breakdownSection = document.querySelector('.detail-section');
+                const routesArray = pairData.all_routes;
                 
-                const sortedRoutes = [...routesArray].sort((a, b) => Math.abs(b.bps) - Math.abs(a.bps));
-                const routesBody = document.getElementById('routes-table-body');
-                
-                routesBody.innerHTML = sortedRoutes.map((r, idx) => `
-                    <tr>
-                        <td class="rank-cell">${idx + 1}</td>
-                        <td style="color: var(--text-primary)">${r.route_string}</td>
-                        <td class="bps-cell">${r.bps.toFixed(2)}</td>
-                        <td><span class="signal-label ${r.signal.toLowerCase() === 'buy' ? 'signal-buy' : 'signal-sell'}">${r.signal}</span></td>
-                    </tr>
-                `).join('');
+                if (routesArray && routesArray.length > 0) {
+                    document.getElementById('route-count-display').textContent = routesArray.length;
+                    const sortedRoutes = [...routesArray].sort((a, b) => Math.abs(b.bps) - Math.abs(a.bps));
+                    const routesBody = document.getElementById('routes-table-body');
+                    
+                    routesBody.innerHTML = sortedRoutes.map((r, idx) => `
+                        <tr>
+                            <td class="rank-cell">${idx + 1}</td>
+                            <td style="color: var(--text-primary)">${r.route_string}</td>
+                            <td class="bps-cell">${r.bps.toFixed(2)}</td>
+                            <td><span class="signal-label ${r.signal.toLowerCase() === 'buy' ? 'signal-buy' : 'signal-sell'}">${r.signal}</span></td>
+                        </tr>
+                    `).join('');
 
-                // Toggle Logic
-                const trigger = document.getElementById('routes-collapsible-trigger');
-                const content = document.getElementById('routes-collapsible-content');
-                const chevron = document.getElementById('chevron');
+                    // Toggle Logic
+                    const trigger = document.getElementById('routes-collapsible-trigger');
+                    const content = document.getElementById('routes-collapsible-content');
+                    const chevron = document.getElementById('chevron');
 
-                trigger.onclick = () => {
-                    content.classList.toggle('expanded');
-                    chevron.style.transform = content.classList.contains('expanded') ? 'rotate(180deg)' : 'rotate(0deg)';
-                };
+                    trigger.onclick = () => {
+                        content.classList.toggle('expanded');
+                        chevron.style.transform = content.classList.contains('expanded') ? 'rotate(180deg)' : 'rotate(0deg)';
+                    };
+                } else {
+                    // Hide the table and show the notice
+                    breakdownSection.innerHTML = `
+                        <div class="info-notice">
+                            Full route breakdown is available for the top 20 pairs only.
+                        </div>
+                    `;
+                }
             }
 
-            // Populate Quick Switch
+            // Populate Quick Switch from full_matrix
             const select = document.getElementById('quick-switch');
-            (data.top_discrepancies || []).forEach(p => {
+            (data.full_matrix || []).forEach(p => {
                 const opt = document.createElement('option');
                 opt.value = p.pair;
                 opt.textContent = p.pair;
